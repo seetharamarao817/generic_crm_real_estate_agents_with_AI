@@ -1,0 +1,399 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-brand: 99 102 241;
+  }
+
+  * {
+    @apply border-slate-200;
+  }
+
+  body {
+    @apply bg-slate-50 text-slate-900 font-sans antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold tracking-tight;
+  }
+}
+
+@layer components {
+  /* ─── Buttons ─────────────────────────────────────────────────────────── */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-primary {
+    @apply btn bg-brand-600 text-white hover:bg-brand-700 focus:ring-brand-500 shadow-sm hover:shadow-md active:scale-95;
+  }
+
+  .btn-secondary {
+    @apply btn bg-white text-slate-700 border border-slate-300 hover:bg-slate-50 focus:ring-brand-500 shadow-sm;
+  }
+
+  .btn-ghost {
+    @apply btn text-slate-600 hover:bg-slate-100 focus:ring-slate-400;
+  }
+
+  .btn-danger {
+    @apply btn bg-rose-600 text-white hover:bg-rose-700 focus:ring-rose-500 shadow-sm;
+  }
+
+  .btn-sm {
+    @apply px-3 py-1.5 text-xs rounded-md;
+  }
+
+  .btn-lg {
+    @apply px-6 py-3 text-base;
+  }
+
+  /* ─── Cards ────────────────────────────────────────────────────────────── */
+  .card {
+    @apply bg-white rounded-xl border border-slate-200 shadow-sm;
+  }
+
+  .card-hover {
+    @apply card transition-all duration-200 hover:shadow-md hover:border-brand-200 cursor-pointer;
+  }
+
+  /* Form inputs */
+  .input {
+    @apply w-full rounded-xl border border-slate-300 bg-white/60 backdrop-blur-md px-3.5 py-2.5 text-sm text-slate-900 placeholder-slate-400 shadow-[inset_0_2px_4px_rgba(0,0,0,0.02)] transition-all duration-300 focus:border-brand-500/80 focus:bg-white focus:outline-none focus:ring-4 focus:ring-brand-500/10 hover:border-slate-400/80 hover:bg-white/80;
+  }
+
+  .input-error {
+    @apply border-rose-400 focus:border-rose-500 focus:ring-rose-500/20 bg-rose-50/30;
+  }
+
+  .label {
+    @apply block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5;
+  }
+
+  .form-error {
+    @apply text-xs text-rose-600 mt-1;
+  }
+
+  /* Structural UI Enhancements */
+  .glass-panel-deep {
+    @apply bg-slate-900/80 backdrop-blur-2xl border border-white/10 shadow-2xl;
+  }
+
+  /* Badges */
+  .badge {
+    @apply inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider;
+  }
+  
+  .badge-indigo { @apply badge bg-indigo-50 text-indigo-700 border border-indigo-200/50; }
+  .badge-green { @apply badge bg-emerald-50 text-emerald-700 border border-emerald-200/50; }
+  .badge-amber { @apply badge bg-amber-50 text-amber-700 border border-amber-200/50; }
+  .badge-red { @apply badge bg-rose-50 text-rose-700 border border-rose-200/50; }
+  .badge-purple { @apply badge bg-purple-50 text-purple-700 border border-purple-200/50; }
+  
+  .badge-ai {
+    @apply badge bg-fuchsia-50 text-fuchsia-700 font-bold border border-fuchsia-200/60 shadow-[0_0_12px_rgba(232,121,249,0.3)];
+  }
+
+  .card-ai-glow {
+    @apply shadow-[0_0_15px_rgba(168,85,247,0.25)] border-purple-200/60 transition-shadow duration-300 hover:shadow-[0_0_25px_rgba(168,85,247,0.4)];
+  }
+
+  .badge-slate {
+    @apply badge bg-slate-100 text-slate-600 border border-slate-200;
+  }
+
+  /* Sidebar */
+  .sidebar-link {
+    @apply flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-slate-500 transition-all duration-200 hover:bg-slate-100/80 hover:text-slate-800;
+  }
+
+  .sidebar-link-active {
+    @apply sidebar-link bg-brand-50 text-brand-700 hover:bg-brand-100 hover:text-brand-800 shadow-[inset_0_1px_2px_rgba(0,0,0,0.02)];
+  }
+
+  /* Page sections */
+  .page-header {
+    @apply flex items-center justify-between mb-8;
+  }
+
+  .page-title {
+    @apply text-3xl font-extrabold text-slate-900 tracking-tight;
+  }
+
+  .page-subtitle {
+    @apply text-sm font-medium text-slate-500 mt-1;
+  }
+
+  /* Dividers */
+  .divider {
+    @apply h-px bg-slate-200/80 my-5;
+  }
+}
+
+/* ─── Scrollbar ──────────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { @apply bg-transparent; }
+::-webkit-scrollbar-thumb { @apply bg-slate-300 rounded-full; }
+::-webkit-scrollbar-thumb:hover { @apply bg-slate-400; }
+
+/* ─── Base Animations & Scales ─────────────────────────────────────────────────── */
+.animate-fade-in { animation: fadeIn 0.25s cubic-bezier(0.2, 0.8, 0.2, 1); }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Scale and Fade for the Deep Dive Window */
+.animate-scale-fade { animation: scaleFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) both; }
+@keyframes scaleFade {
+  0% { opacity: 0; transform: scale(0.96) translateY(20px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* Stagger Entries */
+.animate-stagger-1 { animation: scaleFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.05s both; }
+.animate-stagger-2 { animation: scaleFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.10s both; }
+.animate-stagger-3 { animation: scaleFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both; }
+.animate-stagger-4 { animation: scaleFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.20s both; }
+.animate-stagger-5 { animation: scaleFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.25s both; }
+
+/* Backdrop Blur Animation */
+.animate-backdrop { animation: backdropIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) both; }
+@keyframes backdropIn {
+  from { backdrop-filter: blur(0px); background: rgba(15, 23, 42, 0); }
+  to { backdrop-filter: blur(12px); background: rgba(15, 23, 42, 0.5); }
+}
+
+/* ─── AI Engine — Glass Dark Aesthetic ───────────────────────────────────────── */
+
+/* P3 Color Variables (wide gamut, vivid AI colors) */
+:root {
+  --ai-hot: oklch(65% 0.25 27);          /* vivid red-orange for HOT leads */
+  --ai-warm: oklch(72% 0.20 60);         /* deep amber for WARM */
+  --ai-cold: oklch(62% 0.18 250);        /* electric blue for COLD */
+  --ai-researching: oklch(65% 0.22 280); /* indigo glow — Researching */
+  --ai-success: oklch(68% 0.22 150);     /* emerald — Success/Approved */
+  --ai-waiting: oklch(72% 0.20 70);      /* amber — HITL Waiting */
+  --ai-failed: oklch(60% 0.25 20);       /* rose-red — Failed */
+  --ai-glow-color: rgba(139, 92, 246, 0.5);
+}
+
+/* Glass Panel */
+.glass-panel {
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(16px) saturate(160%);
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  border: 1px solid rgba(148, 163, 184, 0.15);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.glass-panel-light {
+  background: rgba(248, 250, 252, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+/* ─── Neural Pulse — "Thinking" state animation ──────────────────────────────── */
+@keyframes neural-pulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.7), 0 0 0 0 rgba(99, 102, 241, 0.4);
+  }
+  40% {
+    transform: scale(1.08);
+    box-shadow: 0 0 0 8px rgba(139, 92, 246, 0.1), 0 0 20px 4px rgba(99, 102, 241, 0.3);
+  }
+  80% {
+    transform: scale(1.02);
+    box-shadow: 0 0 0 12px rgba(139, 92, 246, 0), 0 0 30px 8px rgba(99, 102, 241, 0.1);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(139, 92, 246, 0), 0 0 0 0 rgba(99, 102, 241, 0);
+  }
+}
+
+.animate-neural-pulse {
+  animation: neural-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* ─── AI Glow Border — conic gradient ring ───────────────────────────────────── */
+@keyframes ai-glow-spin {
+  from { --border-angle: 0deg; }
+  to   { --border-angle: 360deg; }
+}
+
+@property --border-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+.ai-glow-border {
+  position: relative;
+  border-radius: 12px;
+}
+
+.ai-glow-border::before {
+  content: '';
+  position: absolute;
+  inset: -1.5px;
+  border-radius: 13px;
+  padding: 1.5px;
+  background: conic-gradient(
+    from var(--border-angle, 0deg),
+    #6366f1 0deg,
+    #8b5cf6 60deg,
+    #06b6d4 120deg,
+    #6366f1 180deg,
+    #8b5cf6 240deg,
+    #06b6d4 300deg,
+    #6366f1 360deg
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: ai-glow-spin 4s linear infinite;
+  opacity: 0.8;
+}
+
+.ai-glow-border-success::before {
+  background: conic-gradient(
+    from var(--border-angle, 0deg),
+    #10b981 0deg, #34d399 90deg, #6ee7b7 180deg, #10b981 270deg, #10b981 360deg
+  );
+}
+
+.ai-glow-border-waiting::before {
+  background: conic-gradient(
+    from var(--border-angle, 0deg),
+    #f59e0b 0deg, #fbbf24 90deg, #fcd34d 180deg, #f59e0b 270deg, #f59e0b 360deg
+  );
+  animation-duration: 2.5s;
+}
+
+.ai-glow-border-failed::before {
+  background: conic-gradient(
+    from var(--border-angle, 0deg),
+    #ef4444 0deg, #f87171 90deg, #fca5a5 180deg, #ef4444 270deg, #ef4444 360deg
+  );
+  animation-duration: 1.5s;
+}
+
+/* ─── Typing Effect Cursor ───────────────────────────────────────────────────── */
+@keyframes blink-cursor {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.typing-cursor::after {
+  content: '|';
+  margin-left: 1px;
+  animation: blink-cursor 0.8s ease-in-out infinite;
+  color: #6366f1;
+  font-weight: 300;
+}
+
+/* High/Med/Low confidence sentence highlights */
+.confidence-high  { background: rgba(16, 185, 129, 0.1); border-radius: 3px; padding: 0 2px; }
+.confidence-med   { background: rgba(245, 158, 11, 0.1);  border-radius: 3px; padding: 0 2px; }
+.confidence-low   { background: rgba(148, 163, 184, 0.12); border-radius: 3px; padding: 0 2px; }
+
+/* ─── Signal Card animations (OpportunityWatch) ──────────────────────────────── */
+@keyframes slide-up-fade {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.signal-card-enter {
+  animation: slide-up-fade 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Stagger delay helpers */
+.delay-100 { animation-delay: 0.1s; }
+.delay-200 { animation-delay: 0.2s; }
+.delay-300 { animation-delay: 0.3s; }
+.delay-400 { animation-delay: 0.4s; }
+.delay-500 { animation-delay: 0.5s; }
+.delay-600 { animation-delay: 0.6s; }
+
+/* ─── P2P Gauge ring animation ───────────────────────────────────────────────── */
+@keyframes gauge-fill {
+  from { stroke-dashoffset: 283; }
+}
+
+.gauge-ring {
+  transition: stroke-dashoffset 1.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  stroke-linecap: round;
+}
+
+/* ─── Agent status glow orbs ─────────────────────────────────────────────────── */
+@keyframes orb-pulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 currentColor; }
+  50% { opacity: 0.6; box-shadow: 0 0 8px 2px currentColor; }
+}
+
+.status-orb {
+  width: 8px; height: 8px; border-radius: 50%;
+  display: inline-block;
+}
+
+.status-orb-running {
+  background: #6366f1;
+  animation: orb-pulse 1.4s ease-in-out infinite;
+  color: rgba(99, 102, 241, 0.5);
+}
+
+.status-orb-success {
+  background: #10b981;
+  box-shadow: 0 0 6px rgba(16, 185, 129, 0.6);
+}
+
+.status-orb-failed {
+  background: #ef4444;
+  box-shadow: 0 0 6px rgba(239, 68, 68, 0.6);
+}
+
+.status-orb-waiting {
+  background: #f59e0b;
+  animation: orb-pulse 2s ease-in-out infinite;
+  color: rgba(245, 158, 11, 0.5);
+}
+
+/* ─── Scanning line animation ────────────────────────────────────────────────── */
+@keyframes scan-line {
+  0% { transform: translateY(-100%); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translateY(200%); opacity: 0; }
+}
+
+.scan-line {
+  position: absolute;
+  left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent 0%, #6366f1 40%, #8b5cf6 60%, transparent 100%);
+  animation: scan-line 2.5s ease-in-out infinite;
+  border-radius: 1px;
+}
+
+/* ─── Watch button — pulsing research indicator ──────────────────────────────── */
+@keyframes research-beacon {
+  0% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.6); }
+  70% { box-shadow: 0 0 0 12px rgba(99, 102, 241, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
+}
+
+.btn-research-active {
+  animation: research-beacon 1.8s ease-out infinite;
+}
+
+/* ─── Dark mode AI console override ──────────────────────────────────────────── */
+.ai-console-dark {
+  background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+  color: #e2e8f0;
+}
+

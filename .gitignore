@@ -205,3 +205,21 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# Local / Sensitive
+access_token.txt
+uploads/
+*.log
+deep-research-report.md
+mock_data_details.md
+test_out.txt
+test_out2.txt
+scratch/
+chroma_db/
+venv/
+.venv/
+node_modules/
+dist/
+build/
+.next/
+.DS_Store

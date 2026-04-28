@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intelligent RAG Assistant</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <!-- Scripts for Markdown & Syntax Highlighting -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+</head>
+<body>
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2>⚙️ Preferences</h2>
+            <div class="form-group">
+                <label>OpenRouter API Key (Optional)</label>
+                <div class="input-with-icon">
+                    <input type="password" id="apiKeyInput" placeholder="sk-or-v1-...">
+                    <button id="clearApiKeyBtn" class="icon-btn" title="Remove Key">
+                        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                    </button>
+                </div>
+                <p class="hint">Overrides the server's default API key for your session.</p>
+            </div>
+            <div class="form-group">
+                <label>Preferred Model</label>
+                <select id="modelSelect">
+                    <option value="">Auto (Default Cascade)</option>
+                    <optgroup label="OpenRouter" id="orModelGroup"></optgroup>
+                    <optgroup label="Hugging Face (Local)" id="hfModelGroup"></optgroup>
+                </select>
+            </div>
+            <button id="saveSettingsBtn" class="primary-btn">Save Changes</button>
+        </div>
+    </div>
+
+    <!-- Upload Modal -->
+    <div id="uploadModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" id="uploadCloseBtn">&times;</span>
+            <h2>📁 Data Injection</h2>
+            <div class="upload-container" id="dropArea">
+                <div class="scope-toggle">
+                    <label><input type="radio" name="scope" value="global" checked> Global Space</label>
+                    <label><input type="radio" name="scope" value="local"> This Chat Only</label>
+                </div>
+                <input type="file" id="fileInput" accept=".pdf,.txt" hidden>
+                <button id="uploadBtn" class="upload-btn">
+                    <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                    Select File
+                </button>
+                <div id="uploadStatus" class="status-msg"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <button id="newChatBtn" class="primary-btn new-chat-btn">
+                <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                New Chat
+            </button>
+            
+            <div class="history-container">
+                <h3>Recent Conversations</h3>
+                <ul id="sessionList" class="session-list">
+                    <!-- Sessions injected here -->
+                </ul>
+            </div>
+        </aside>
+
+        <!-- Main Chat -->
+        <main class="chat-interface">
+            <header class="chat-header">
+                <div class="header-left">
+                    <button id="toggleSidebarBtn" class="icon-btn" title="Toggle Sidebar">
+                        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                    </button>
+                    <div class="header-info">
+                        <h1 id="chatTitle">New Session</h1>
+                        <div class="status-indicator">
+                            <span class="dot online"></span>
+                            <span id="systemStatus">Ready</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="header-right">
+                    <button id="openUploadBtn" class="action-btn">
+                        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                        Upload Data
+                    </button>
+                    <button id="settingsBtn" class="icon-btn" title="Settings">
+                        <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                    </button>
+                </div>
+            </header>
+            
+            <div class="chat-messages" id="chatBox">
+                <!-- Chat messages injected here -->
+            </div>
+            
+            <form class="chat-input-area" id="chatForm">
+                <textarea id="userInput" placeholder="Ask anything... (Use Shift+Enter for new line)" rows="1"></textarea>
+                <button type="submit" id="sendBtn" title="Send (Enter)">
+                    <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                </button>
+            </form>
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

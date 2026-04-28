@@ -1,0 +1,17 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Databases & local storage
+chroma_db/
+chatbot.db
+uploads/
+
+# Environment
+.env
+
+# OS
+.DS_Store
+Thumbs.db

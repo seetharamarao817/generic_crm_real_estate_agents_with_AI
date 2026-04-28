@@ -1,0 +1,10 @@
+Flask
+requests
+python-dotenv
+chromadb
+pypdf
+sentence-transformers
+transformers
+torch
+werkzeug
+accelerate

@@ -1546,6 +1546,102 @@ async def decide_approval(approval_id: str, body: DecideRequest, rls: RlsSession
     )
     await session.commit()
 
+    if db_status == "approved":
+        # Parse content properly
+        content_to_send = draft_content or dict(draft).get("draft_content", {})
+        if isinstance(content_to_send, str):
+            try:
+                import re
+                cleaned = re.sub(r"^```json\s*", "", content_to_send.strip())
+                cleaned = re.sub(r"\s*```$", "", cleaned)
+                content_to_send = json.loads(cleaned)
+            except Exception:
+                pass
+                
+        # Inner parsing if body is markdown json string
+        if isinstance(content_to_send, dict) and 'body' in content_to_send and isinstance(content_to_send['body'], str):
+            inner_body = content_to_send['body'].strip()
+            if inner_body.startswith("```json"):
+                try:
+                    import re
+                    inner_cleaned = re.sub(r"^```json\s*", "", inner_body)
+                    inner_cleaned = re.sub(r"\s*```$", "", inner_cleaned)
+                    parsed_inner = json.loads(inner_cleaned)
+                    content_to_send = {**content_to_send, **parsed_inner}
+                except Exception:
+                    pass
+        
+        draft_type = dict(draft).get("draft_type")
+        from app.services.messaging_service import send_email, send_sms
+        from app.core.config import settings
+        import logging
+        logger = logging.getLogger(__name__)
+
+        try:
+            if draft_type == "email":
+                to_addr = content_to_send.get("to_email") or dict(draft).get("email") # fallback
+                # Wait, approval_drafts table doesn't have email directly. We'd have to join leads if we wanted.
+                if not to_addr and dict(draft).get("lead_id"):
+                    # fetch lead email
+                    lead_res = await session.execute(text("SELECT email FROM leads WHERE id = :lid"), {"lid": dict(draft)["lead_id"]})
+                    lead_row = lead_res.mappings().first()
+                    if lead_row:
+                        to_addr = lead_row["email"]
+                
+                subject = content_to_send.get("subject", "Update regarding your property inquiry")
+                body_txt = content_to_send.get("body", str(content_to_send))
+                
+                if to_addr:
+                    base_url = os.getenv("APP_BACKEND_URL", "http://localhost:8000")
+                    lead_id_str = str(dict(draft).get('lead_id', ''))
+                    unsub = f"{base_url}/api/v1/email-action?action=unsubscribe&lead_id={lead_id_str}&email={to_addr}"
+                    await send_email(to_email=to_addr, subject=subject, html_body=body_txt.replace("\n", "<br>"), plain_body=body_txt, unsubscribe_url=unsub)
+                    
+                    if dict(draft).get("lead_id"):
+                        await session.execute(text("""
+                            INSERT INTO activities (id, team_id, lead_id, type, title, description, created_by, created_at, updated_at)
+                            VALUES (gen_random_uuid(), :team_id, :lead_id, 'email', :title, :description, :user_id, now(), now())
+                        """), {
+                            "team_id": str(user.team_id),
+                            "lead_id": str(dict(draft)["lead_id"]),
+                            "title": f"Email Sent: {subject}",
+                            "description": body_txt,
+                            "user_id": str(user.id)
+                        })
+                        await session.commit()
+                else:
+                    logger.warning(f"Could not determine target email for draft {approval_id}")
+            
+            elif draft_type == "sms":
+                to_num = content_to_send.get("to_number")
+                if not to_num and dict(draft).get("lead_id"):
+                    lead_res = await session.execute(text("SELECT phone FROM leads WHERE id = :lid"), {"lid": dict(draft)["lead_id"]})
+                    lead_row = lead_res.mappings().first()
+                    if lead_row:
+                        to_num = lead_row["phone"]
+
+                body_txt = content_to_send.get("body", str(content_to_send))
+                if to_num:
+                    await send_sms(to_number=to_num, body=body_txt, opt_out_message="Reply STOP to unsubscribe")
+                    
+                    if dict(draft).get("lead_id"):
+                        await session.execute(text("""
+                            INSERT INTO activities (id, team_id, lead_id, type, title, description, created_by, created_at, updated_at)
+                            VALUES (gen_random_uuid(), :team_id, :lead_id, 'call', :title, :description, :user_id, now(), now())
+                        """), {
+                            "team_id": str(user.team_id),
+                            "lead_id": str(dict(draft)["lead_id"]),
+                            "title": "SMS Sent",
+                            "description": body_txt,
+                            "user_id": str(user.id)
+                        })
+                        await session.commit()
+                else:
+                    logger.warning(f"Could not determine target phone for draft {approval_id}")
+
+        except Exception as e:
+            logger.error(f"Failed to dispatch approved message for {approval_id}: {e}")
+
     return {"status": db_status, "approval_id": approval_id}
 
 

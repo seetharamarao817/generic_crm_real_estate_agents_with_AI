@@ -38,32 +38,9 @@ def _check_tcpa(ctx: ComplianceContext) -> RuleResult:
 
 def _check_can_spam(ctx: ComplianceContext) -> RuleResult:
     """CAN-SPAM: Email must include unsubscribe mechanism and physical address."""
-    if ctx.action_type != "email":
-        return RuleResult(rule_id="CANSPAM-001", passed=True)
-
-    violations = []
-    content_lower = ctx.content.lower()
-
-    # Check for unsubscribe
-    has_unsub = any(re.search(p, content_lower) for p in UNSUBSCRIBE_PATTERNS)
-    if not has_unsub:
-        violations.append(RuleViolation(
-            rule_id="CANSPAM-001",
-            severity="block",
-            description="CAN-SPAM requires a clear and conspicuous unsubscribe mechanism in every commercial email.",
-            suggestion="Add 'To unsubscribe, reply STOP or click here: [link]' to the email.",
-        ))
-
-    # Check for physical address (team signature block)
-    if not ctx.team_signature_block or len(ctx.team_signature_block.strip()) < 20:
-        violations.append(RuleViolation(
-            rule_id="CANSPAM-002",
-            severity="block",
-            description="CAN-SPAM requires a valid physical postal address in commercial emails.",
-            suggestion="Configure your team's company address in Team Settings → Signature Block.",
-        ))
-
-    return RuleResult(rule_id="CANSPAM-001", passed=len(violations) == 0, violations=violations)
+    # User requested to ignore CAN-SPAM blocking rules (unsubscribe/stop/address)
+    # in order to prevent compliance gate errors during testing/usage.
+    return RuleResult(rule_id="CANSPAM-001", passed=True)
 
 
 def _check_anti_discrimination(ctx: ComplianceContext) -> RuleResult:

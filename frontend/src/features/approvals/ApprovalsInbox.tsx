@@ -62,6 +62,35 @@ function ApprovalCard({ draft, isSelected, onClick }: {
     edited: 'text-blue-500',
   }[draft.status] || 'text-slate-400'
 
+  let content = draft.draft_content as any || {};
+  
+  // Outer parsing
+  if (typeof content === 'string') {
+    try {
+      let cleaned = content.trim();
+      if (cleaned.startsWith("```json")) cleaned = cleaned.slice(7).trim();
+      if (cleaned.endsWith("```")) cleaned = cleaned.slice(0, -3).trim();
+      content = JSON.parse(cleaned);
+    } catch(e) {
+      content = { body: content }
+    }
+  }
+
+  // Inner parsing (if body itself is stringified JSON)
+  if (content && typeof content === 'object' && typeof content.body === 'string') {
+    let innerBody = content.body.trim();
+    if (innerBody.startsWith("```json")) {
+      try {
+        innerBody = innerBody.slice(7).trim();
+        if (innerBody.endsWith("```")) innerBody = innerBody.slice(0, -3).trim();
+        const parsedBody = JSON.parse(innerBody);
+        content = { ...content, ...parsedBody };
+      } catch (e) {
+        // ignore if it fails
+      }
+    }
+  }
+
   return (
     <div
       onClick={onClick}
@@ -90,7 +119,7 @@ function ApprovalCard({ draft, isSelected, onClick }: {
             </p>
           )}
           <p className="text-xs text-slate-500 truncate mt-0.5">
-            {(draft.draft_content as any)?.subject || (draft.draft_content as any)?.body?.slice(0, 80) || 'Review required'}
+            {content.subject || content.body?.slice(0, 80) || 'Review required'}
           </p>
           <p className="text-[10px] text-slate-400 mt-1">{new Date(draft.created_at).toLocaleString()}</p>
         </div>
@@ -104,7 +133,35 @@ function ApprovalDetail({ draft, onDecide, isDeciding }: {
   onDecide: (id: string, action: string, editedContent?: Record<string, unknown>) => void
   isDeciding: boolean
 }) {
-  const content = draft.draft_content as any || {}
+  let content = draft.draft_content as any || {}
+  
+  if (typeof content === 'string') {
+    try {
+      let cleaned = content.trim();
+      if (cleaned.startsWith("```json")) cleaned = cleaned.slice(7).trim();
+      if (cleaned.endsWith("```")) cleaned = cleaned.slice(0, -3).trim();
+      content = JSON.parse(cleaned);
+    } catch(e) {
+      // If parsing fails, just keep as a single combined body
+      content = { body: content }
+    }
+  }
+
+  // Inner parsing (if body itself is stringified JSON)
+  if (content && typeof content === 'object' && typeof content.body === 'string') {
+    let innerBody = content.body.trim();
+    if (innerBody.startsWith("```json")) {
+      try {
+        innerBody = innerBody.slice(7).trim();
+        if (innerBody.endsWith("```")) innerBody = innerBody.slice(0, -3).trim();
+        const parsedBody = JSON.parse(innerBody);
+        content = { ...content, ...parsedBody };
+      } catch (e) {
+        // ignore if it fails
+      }
+    }
+  }
+
   const reasoning = draft.ai_reasoning as any || {}
   const [isEditing, setIsEditing] = useState(false)
   const [editBody, setEditBody] = useState(content.body || '')

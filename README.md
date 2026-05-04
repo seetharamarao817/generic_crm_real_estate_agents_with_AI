@@ -1,58 +1,97 @@
-# Acufy CRM - Agentic AI CRM
+# 🚀 AI-Powered Real Estate CRM
 
-Acufy CRM is a cloud-agnostic, LLM-agnostic, and agentic AI CRM designed for sales professionals. It features a multi-agent AI swarm that proactively handles leads, drafts communications, and orchestrates deals with Human-in-the-Loop (HITL) safety gates.
+A state-of-the-art Customer Relationship Management (CRM) system specifically designed for real estate agents and agencies, supercharged with Artificial Intelligence.
 
-## Features
+![CRM Dashboard Mockup](https://raw.githubusercontent.com/seetharamarao817/generic_crm_real_estate_agents_with_AI/main/docs/dashboard_preview.png)
 
-- **Multi-Agent AI Swarm**: Powered by LangGraph for complex sales workflows.
-- **Generic B2B/B2C Support**: Flexible data model for accounts, contacts, and deals.
-- **Pluggable Compliance**: Built-in guardrails for TCPA, CAN-SPAM, and anti-discrimination.
-- **Multimodal**: Support for SMS (Twilio), Email (SendGrid), and Calendar (Google/Microsoft).
-- **Observability**: Full tracing and cost monitoring via Langfuse.
+## ✨ Core Features
 
-## Tech Stack
+### 🧠 AI Intelligence
+- **P2P Lead Scoring**: Automatically rank leads based on their likelihood to convert using advanced AI algorithms.
+- **Deep AI Research**: Generate comprehensive background reports on leads and companies with one click.
+- **Smart Proposal Generation**: Create tailored property proposals and contracts using AI-driven templates.
+- **Automated Activity Logging**: All AI-driven communications (Emails, SMS) are automatically summarized and logged in the lead's activity timeline.
 
-- **Backend**: FastAPI, SQLAlchemy 2.0, Alembic, arq (Redis).
-- **Frontend**: React (Vite), Tailwind CSS, shadcn/ui, TanStack Query/Router.
-- **AI**: LangGraph, LiteLLM, pgvector.
-- **Auth**: Auth0.
+### 🏠 CRM Essentials
+- **Lead Pipeline**: Visual drag-and-drop kanban board for managing lead stages.
+- **Contact & Account Management**: Unified view of all stakeholders and organizations.
+- **Deal Management**: Track opportunities, property listings, and sales progress.
+- **Task & Calendar Integration**: Never miss a follow-up with integrated scheduling and reminders.
 
-## Getting Started
+### 💬 Communication Suite
+- **Multi-Channel Outreach**: Integrated Email, SMS, and WhatsApp (via MSG91) support.
+- **Real-Time Notifications**: Instant alerts for new leads, task deadlines, and AI research completions.
+- **Intelligent Chatbot**: AI-powered assistant for quick data retrieval and task automation.
 
-### 1. Prerequisites
+### 🛡️ Enterprise Grade
+- **Role-Based Access Control (RBAC)**: Granular permissions for Admins, Agents, and Guests.
+- **Audit Logs**: Full transparency on data changes and user activities.
+- **Secure Authentication**: Google OAuth and standard email/password support.
+
+## 🛠️ Technology Stack
+
+| Layer | Technology |
+| :--- | :--- |
+| **Frontend** | React, Vite, TypeScript, Tailwind CSS, Lucide Icons |
+| **Backend** | FastAPI (Python), SQLAlchemy, Alembic |
+| **Database** | PostgreSQL with pgvector (for AI embeddings) |
+| **AI/ML** | OpenAI GPT-4o / Gemini 1.5 Pro, ChromaDB |
+| **Deployment** | Docker, Docker Compose |
+| **Communication** | MSG91 (SMS/WhatsApp), SMTP (Email) |
+
+## 🚀 Getting Started
+
+### Prerequisites
 - Docker & Docker Compose
-- Auth0 Account
-- LLM API Keys (Groq, OpenRouter, or Gemini)
+- Node.js 18+ (for local development)
+- Python 3.10+ (for local development)
 
-### 2. Environment Setup
-Copy the example environment files and fill in your credentials:
+### Quick Start with Docker
 
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/seetharamarao817/generic_crm_real_estate_agents_with_AI.git
+   cd generic_crm_real_estate_agents_with_AI
+   ```
+
+2. **Setup environment variables:**
+   Create a `.env` file in the root directory based on `.env.example`.
+
+3. **Spin up the services:**
+   ```bash
+   docker-compose up -d
+   ```
+
+4. **Access the application:**
+   - Frontend: `http://localhost:3000`
+   - Backend API: `http://localhost:8000/docs`
+
+### Seeding Demo Data
+To populate the system with realistic real estate test data:
 ```bash
-cp .env.example .env
-cp backend/.env.example backend/.env
-cp frontend/.env.example frontend/.env
+docker-compose exec backend python seed_presentation_data.py
 ```
 
-### 3. Local Development (Docker)
-The infrastructure can be started using the provided docker-compose:
+## 📂 Project Structure
 
-```bash
-docker compose up -d
+```text
+├── backend/            # FastAPI Backend
+│   ├── app/            # Application logic (AI, Routers, Models)
+│   ├── alembic/        # DB Migrations
+│   └── seeders/        # Data seeding scripts
+├── frontend/           # React + Vite Frontend
+│   ├── src/features/   # Modular CRM features
+│   └── src/pages/      # Route pages
+├── chatbot/            # Standalone AI Chatbot service
+├── infra/              # Infrastructure & Docker configs
+└── docs/               # Technical documentation
 ```
 
-### 4. Production Deployment
-Use the production-ready configuration in `infra/`:
+## 🤝 Contributing
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-```bash
-docker compose -f infra/docker-compose.prod.yml up -d
-```
+## 📄 License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## Project Structure
-
-- `backend/`: FastAPI server and AI agent logic.
-- `frontend/`: React single-page application.
-- `infra/`: Project infrastructure and deployment configurations.
-- `chatbot/`: Integrated AI chatbot component.
-
-## License
-MIT
+---
+Built with ❤️ for Real Estate Professionals.

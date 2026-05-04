@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { leadsApi, meetingsApi, aiApi, leadContextApi } from '../../lib/api'
+import { leadsApi, meetingsApi, aiApi, leadContextApi, productsApi } from '../../lib/api'
 import type { Lead, LeadRequest, Meeting } from '../../lib/api'
 import { 
   X, Flame, Snowflake, Sparkles, History, Bot, Brain, 
   Send, Mail, CheckCircle2, MessageSquare, Phone, 
   Calendar, Users, FileText, Inbox, Building2, Clock, MapPin, 
   TrendingUp, Plus, Loader2, ArrowRight, Edit2, Paperclip,
-  ShieldOff, ShieldCheck, AlertTriangle
+  ShieldOff, ShieldCheck, AlertTriangle, Trash
 } from 'lucide-react'
 import { ScheduleMeetingModal } from './ScheduleMeetingModal'
 
@@ -83,6 +83,16 @@ export function LeadIntelligenceWindow({ lead, onClose, onUpdate }: any) {
     }
   })
 
+  const deleteMutation = useMutation({
+    mutationFn: () => leadsApi.delete(lead.id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['leads'] })
+      onClose()
+    }
+  })
+
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+
   const { data: consent } = useQuery({
     queryKey: ['lead-consent', lead.id],
     queryFn: () => aiApi.getConsent(lead.id).then(r => r.data),
@@ -127,6 +137,12 @@ export function LeadIntelligenceWindow({ lead, onClose, onUpdate }: any) {
     queryFn: () => aiApi.getRun(proposalRunId!).then(r => r.data as any),
     enabled: !!proposalRunId && proposalRunId !== 'done',
     refetchInterval: 2000,
+  })
+
+  const { data: campaignProduct } = useQuery({
+    queryKey: ['campaign-product', lead.product_id],
+    queryFn: () => productsApi.get(lead.product_id!).then((r: any) => r.data),
+    enabled: !!lead.product_id,
   })
 
   useEffect(() => {
@@ -215,6 +231,36 @@ export function LeadIntelligenceWindow({ lead, onClose, onUpdate }: any) {
         />
       )}
       
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 z-[110] flex items-center justify-center bg-slate-900/50 backdrop-blur-sm px-4">
+          <div className="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl border border-slate-100 animate-scale-fade">
+            <div className="w-16 h-16 bg-rose-50 rounded-2xl flex items-center justify-center mb-6 text-rose-500 shadow-inner">
+              <AlertTriangle className="w-8 h-8" />
+            </div>
+            <h3 className="text-2xl font-bold text-slate-800 mb-2">Delete Lead?</h3>
+            <p className="text-slate-500 mb-8 leading-relaxed">
+              This will permanently delete <strong>{lead.first_name} {lead.last_name}</strong> and all associated activity logs, notes, and requests. This action cannot be undone.
+            </p>
+            <div className="flex items-center gap-3 w-full">
+              <button 
+                onClick={() => setShowDeleteConfirm(false)}
+                className="flex-1 px-5 py-3 rounded-xl bg-slate-50 text-slate-700 font-bold hover:bg-slate-100 transition-colors"
+                disabled={deleteMutation.isPending}
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={() => deleteMutation.mutate()}
+                className="flex-1 px-5 py-3 rounded-xl bg-rose-500 text-white font-bold hover:bg-rose-600 transition-colors flex items-center justify-center gap-2"
+                disabled={deleteMutation.isPending}
+              >
+                {deleteMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Delete'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="fixed inset-0 bg-slate-900/30 backdrop-blur-md z-[90] animate-backdrop" onClick={onClose} />
       
       <div className="fixed inset-4 md:inset-8 z-[100] bg-white/95 backdrop-blur-3xl shadow-2xl shadow-2xl rounded-3xl border border-slate-200 shadow-sm overflow-hidden flex flex-col animate-scale-fade">
@@ -227,7 +273,7 @@ export function LeadIntelligenceWindow({ lead, onClose, onUpdate }: any) {
               {lead.first_name[0]}{lead.last_name?.[0] || ''}
             </div>
             <div>
-              <h2 className="text-3xl font-bold text-slate-900 tracking-tight flex items-center gap-3">
+              <h2 className="text-3xl font-bold text-slate-900 tracking-tight flex items-center gap-3 flex-wrap">
                 {lead.first_name} {lead.last_name}
                 <span className={`text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded border ${
                     lead.priority === 'hot' ? 'bg-rose-100 text-rose-700 border-rose-200' :
@@ -239,6 +285,11 @@ export function LeadIntelligenceWindow({ lead, onClose, onUpdate }: any) {
                 <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded border bg-slate-50 text-slate-600 border-white/20">
                   {lead.status}
                 </span>
+                {lead.product_id && (
+                  <span className="text-[10px] flex items-center gap-1 uppercase font-bold tracking-wider px-2 py-0.5 rounded border bg-fuchsia-50 text-fuchsia-700 border-fuchsia-200" title={campaignProduct?.name || 'Campaign'}>
+                    <Flame className="w-3 h-3" /> {campaignProduct?.name?.slice(0, 20) || 'Campaign'} Lead
+                  </span>
+                )}
               </h2>
               <div className="flex items-center gap-4 mt-2 text-sm font-medium text-slate-600">
                 {lead.company && <span className="flex items-center gap-1.5"><Building2 className="w-4 h-4" />{lead.company}</span>}
@@ -248,7 +299,10 @@ export function LeadIntelligenceWindow({ lead, onClose, onUpdate }: any) {
           </div>
 
           <div className="flex flex-col items-end gap-3 mt-4 md:mt-0">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <button onClick={() => setShowDeleteConfirm(true)} className="p-2.5 bg-white hover:bg-rose-50 border border-slate-200 hover:border-rose-200 shadow-sm rounded-xl text-slate-400 hover:text-rose-500 transition-colors" title="Delete Lead">
+                <Trash className="w-5 h-5" />
+              </button>
               <button onClick={onClose} className="p-2.5 bg-white hover:bg-slate-50 border border-slate-200 shadow-sm rounded-xl text-slate-600 hover:text-slate-900 transition-colors">
                 <X className="w-5 h-5" />
               </button>
@@ -369,21 +423,61 @@ export function LeadIntelligenceWindow({ lead, onClose, onUpdate }: any) {
 
                   {lead.ai_summary && (
                     <div className="mt-6 pt-6 border-t border-slate-100">
-                      <p className="text-xs text-indigo-400 font-bold uppercase tracking-widest mb-3 flex items-center gap-2">
+                      <p className="text-xs text-indigo-500 font-bold uppercase tracking-widest mb-3 flex items-center gap-2">
                         <Sparkles className="w-4 h-4" /> AI Summary & Strategy
                       </p>
-                      <div className="bg-indigo-500/10 border border-indigo-500/20 rounded-xl p-5 text-sm text-indigo-100 leading-relaxed font-medium">
+                      <div className="bg-indigo-50 border border-indigo-100/50 rounded-xl p-5 text-sm text-indigo-900 leading-relaxed font-medium">
                         {lead.ai_summary}
+                      </div>
+                    </div>
+                  )}
+
+                  {lead.ai_score_breakdown && typeof lead.ai_score_breakdown === 'object' && (
+                    <div className="mt-6 pt-6 border-t border-slate-100">
+                      <p className="text-xs text-fuchsia-500 font-bold uppercase tracking-widest mb-4 flex items-center gap-2">
+                        <Brain className="w-4 h-4" /> AI Research & Propensity Analysis
+                      </p>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {Object.entries(lead.ai_score_breakdown).map(([key, value]) => {
+                          const isObj = typeof value === 'object' && value !== null;
+                          const score = isObj ? (value as any).score : value;
+                          const max = isObj ? (value as any).max : null;
+                          const note = isObj ? (value as any).note : '';
+
+                          return (
+                            <div key={key} className="bg-slate-50 border border-slate-100 p-4 rounded-xl flex flex-col justify-between">
+                              <div className="flex items-start justify-between gap-2 mb-2">
+                                <span className="text-[10px] text-slate-500 uppercase tracking-widest font-bold break-words">
+                                  {key.replace(/_/g, ' ')}
+                                </span>
+                                {max !== null ? (
+                                  <span className="text-xs font-bold text-fuchsia-600 bg-fuchsia-50 px-2 py-0.5 rounded-md">
+                                    {score} <span className="text-fuchsia-300">/ {max}</span>
+                                  </span>
+                                ) : (
+                                  <span className="text-sm font-semibold text-slate-800">
+                                    {String(score)}
+                                  </span>
+                                )}
+                              </div>
+                              {note && (
+                                <p className="text-xs text-slate-600 leading-relaxed font-medium">
+                                  {note}
+                                </p>
+                              )}
+                            </div>
+                          );
+                        })}
                       </div>
                     </div>
                   )}
                   
                   {lead.tags && lead.tags.length > 0 && (
-                    <div className="pt-4">
+                    <div className="pt-6">
                       <p className="text-[10px] text-slate-600 uppercase tracking-wider font-bold mb-2">Automated Identity Tags</p>
                       <div className="flex flex-wrap gap-2">
                         {lead.tags.map((t: string) => (
-                          <span key={t} className="px-3 py-1 bg-white text-slate-600 text-xs font-medium border border-slate-200 shadow-sm rounded-lg">
+                          <span key={t} className="px-3 py-1 bg-white text-slate-600 text-xs font-bold border border-slate-200 shadow-sm rounded-lg hover:border-indigo-300 transition-colors cursor-default">
                             #{t}
                           </span>
                         ))}

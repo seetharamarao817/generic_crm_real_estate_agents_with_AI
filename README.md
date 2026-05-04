@@ -2,7 +2,7 @@
 
 A state-of-the-art Customer Relationship Management (CRM) system specifically designed for real estate agents and agencies, supercharged with Artificial Intelligence.
 
-![CRM Dashboard Mockup](https://raw.githubusercontent.com/seetharamarao817/generic_crm_real_estate_agents_with_AI/main/docs/dashboard_preview.png)
+![CRM Dashboard Mockup](https://raw.githubusercontent.com/seetharamarao817/generic_crm_real_estate_agents_with_AI/main/docs/image.png)
 
 ## ✨ Core Features
 

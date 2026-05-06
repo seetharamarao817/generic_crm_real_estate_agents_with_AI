@@ -9,11 +9,13 @@ A state-of-the-art Customer Relationship Management (CRM) system specifically de
 ### 🧠 AI Intelligence
 - **P2P Lead Scoring**: Automatically rank leads based on their likelihood to convert using advanced AI algorithms.
 - **Deep AI Research**: Generate comprehensive background reports on leads and companies with one click.
+- **Universal AI Compliance**: Automated compliance checking for communications and documents to ensure regulatory standards are met.
 - **Smart Proposal Generation**: Create tailored property proposals and contracts using AI-driven templates.
 - **Automated Activity Logging**: All AI-driven communications (Emails, SMS) are automatically summarized and logged in the lead's activity timeline.
 
 ### 🏠 CRM Essentials
 - **Lead Pipeline**: Visual drag-and-drop kanban board for managing lead stages.
+- **Approvals Inbox**: Centralized hub for managing and reviewing pending approvals for deals, contracts, and proposals.
 - **Contact & Account Management**: Unified view of all stakeholders and organizations.
 - **Deal Management**: Track opportunities, property listings, and sales progress.
 - **Task & Calendar Integration**: Never miss a follow-up with integrated scheduling and reminders.
